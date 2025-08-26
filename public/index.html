@@ -975,15 +975,20 @@
             const message = input.value.trim();
             if (!message) return; // Não envia se estiver vazio
         
+            if (!currentUser) {
+                alert('Você precisa entrar no chat antes de enviar mensagens.');
+                return;
+            }
+        
             try {
                 const { data, error } = await supabase
-                  .from('public_messages')
-                  .insert([{
-                    content: message,
-                    user_id: currentUser.id,
-                    created_at: new Date()
-                  }]);
-
+                    .from('public_messages')
+                    .insert([{
+                        user_id: currentUser.id,  // <-- adicione isto
+                        content: message,
+                        message_type: 'text',
+                        created_at: new Date()
+                    }]);
         
                 if (error) {
                     console.error('Erro ao enviar:', error);
@@ -991,10 +996,9 @@
                     return;
                 }
         
-                // Limpar input após envio
                 input.value = '';
-                loadMessages();
                 input.style.height = 'auto'; // reset altura se tiver autoexpand
+                loadMessages();
         
                 console.log('Mensagem enviada:', data);
             } catch (err) {
