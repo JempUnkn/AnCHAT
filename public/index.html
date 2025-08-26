@@ -972,27 +972,27 @@
         // Enviar mensagem
         async function sendMessage() {
             const input = document.getElementById('messageInput');
-            const content = input.value.trim();
-            
-            if (!content || !currentUser) return;
-            
+            const message = input.value.trim();
+            if (!message) return; // Não envia se estiver vazio
+        
             try {
-                const { error } = await supabase
-                    .from('public_messages')
-                    .insert([{
-                        user_id: currentUser.id,
-                        content: content,
-                        message_type: 'text'
-                    }]);
-                
-                if (error) throw error;
-                
+                const { data, error } = await supabase
+                    .from('messages')       // nome da tabela no Supabase
+                    .insert([{ content: message, created_at: new Date() }]);
+        
+                if (error) {
+                    console.error('Erro ao enviar:', error);
+                    alert('Não foi possível enviar a mensagem.');
+                    return;
+                }
+        
+                // Limpar input após envio
                 input.value = '';
-                input.style.height = 'auto';
-                
-            } catch (error) {
-                console.error('Erro ao enviar mensagem:', error);
-                alert('Erro ao enviar mensagem. Tente novamente.');
+                input.style.height = 'auto'; // reset altura se tiver autoexpand
+        
+                console.log('Mensagem enviada:', data);
+            } catch (err) {
+                console.error('Erro inesperado:', err);
             }
         }
         
