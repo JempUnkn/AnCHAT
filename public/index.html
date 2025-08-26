@@ -581,14 +581,19 @@
             
             <div class="input-container">
                 <div class="input-wrapper">
-                    <textarea 
-                        id="messageInput" 
-                        class="message-input" 
-                        placeholder="Digite sua mensagem... (Markdown suportado)"
-                        rows="1"
-                        onkeydown="handleKeyPress(event)"
-                        oninput="handleTyping()"
-                    ></textarea>
+                    <form id="chatForm" onsubmit="sendMessage(); return false;">
+                        <textarea 
+                            id="messageInput" 
+                            class="message-input" 
+                            placeholder="Digite sua mensagem..."
+                            rows="1"
+                            oninput="handleTyping()"
+                        ></textarea>
+                        <button type="submit" class="input-btn send-btn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+
                     <div class="input-actions">
                         <button class="input-btn" onclick="toggleEmojiPicker()">
                             <i class="fas fa-smile"></i>
