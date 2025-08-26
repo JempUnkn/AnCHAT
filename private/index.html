@@ -707,9 +707,10 @@
         // Configuração do Supabase
         const SUPABASE_URL = 'https://niarpllphzxupsnewlam.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pYXJwbGxwaHp4dXBzbmV3bGFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyMzQxMzEsImV4cCI6MjA3MTgxMDEzMX0.Y7bZORv8XCCJFyAa46IiAuuCLLhoQbvaWyGU92kbALg';
-        
+    
+        // Inicializa cliente Supabase global
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
+    
         // Estado global
         let currentUser = null;
         let userFingerprint = null;
@@ -719,27 +720,25 @@
         let messages = [];
         let typingTimeout = null;
         let messagesSubscription = null;
-
+    
         // Inicialização
         document.addEventListener('DOMContentLoaded', async () => {
-        await generateFingerprint();
-        await loadCurrentUser();
-        if (currentUser) {
-            await loadChats();
-            setupRealtimeSubscriptions();
-        } else {
-            window.location.href = '../public';
-        }
-    });
-
+            await generateFingerprint();
+            await loadCurrentUser();
+            if (currentUser) {
+                await loadChats();
+                setupRealtimeSubscriptions();
+            } else {
+                window.location.href = '../public';
+            }
+        });
+    
         // Gerar fingerprint do dispositivo
         async function generateFingerprint() {
             return new Promise((resolve) => {
                 if (window.Fingerprint2) {
                     Fingerprint2.get({}, function(components) {
-                        const values = components.map(function(component) {
-                            return component.value;
-                        });
+                        const values = components.map(component => component.value);
                         userFingerprint = Fingerprint2.x64hash128(values.join(''), 31);
                         resolve();
                     });
@@ -749,7 +748,7 @@
                 }
             });
         }
-
+    
         // Carregar usuário atual
         async function loadCurrentUser() {
             try {
@@ -758,40 +757,40 @@
                     .select('*')
                     .eq('fingerprint', userFingerprint)
                     .single();
-                
+    
                 if (error || !user) {
                     console.log('Usuário não encontrado, redirecionando...');
                     return;
                 }
-                
+    
                 if (user.is_banned) {
                     alert('Você foi banido do chat.');
                     return;
                 }
-                
+    
                 currentUser = user;
-                
+    
                 // Atualizar info do usuário na interface
                 document.getElementById('currentUserInfo').innerHTML = `
                     <div class="user-avatar-small">${user.username[0].toUpperCase()}</div>
                     <div class="user-name-small">${user.display_name || user.username}</div>
                 `;
-                
+    
                 // Atualizar last_seen
                 await supabase
                     .from('users')
                     .update({ last_seen: new Date().toISOString() })
                     .eq('id', user.id);
-                    
+    
             } catch (error) {
                 console.error('Erro ao carregar usuário:', error);
             }
         }
-
+    
         // Carregar lista de chats
         async function loadChats() {
             if (!currentUser) return;
-            
+    
             try {
                 const { data: chats, error } = await supabase
                     .from('private_chats')
@@ -802,13 +801,13 @@
                     `)
                     .or(`user1_id.eq.${currentUser.id},user2_id.eq.${currentUser.id}`)
                     .order('created_at', { ascending: false });
-                
+    
                 if (error) throw error;
-                
+    
                 const chatsList = document.getElementById('chatsList');
                 chatsList.innerHTML = '';
-                
-                if (chats.length === 0) {
+    
+                if (!chats || chats.length === 0) {
                     chatsList.innerHTML = `
                         <div style="padding: 20px; text-align: center; color: rgba(255,255,255,0.6);">
                             <i class="fas fa-inbox" style="font-size: 32px; margin-bottom: 10px;"></i>
@@ -818,11 +817,11 @@
                     `;
                     return;
                 }
-                
+    
                 for (const chat of chats) {
-                    const otherUser = chat.user1_id === currentUser.id ? chat.user2 : chat.user1;
+                    const otherUser = chat.user1.id === currentUser.id ? chat.user2 : chat.user1;
                     const isOnline = new Date() - new Date(otherUser.last_seen) < 5 * 60 * 1000;
-                    
+    
                     // Buscar última mensagem
                     const { data: lastMessage } = await supabase
                         .from('private_messages')
@@ -831,12 +830,12 @@
                         .order('created_at', { ascending: false })
                         .limit(1)
                         .single();
-                    
+    
                     const chatEl = document.createElement('div');
                     chatEl.className = 'chat-item';
                     chatEl.dataset.chatId = chat.id;
                     chatEl.onclick = () => openChat(chat, otherUser);
-                    
+    
                     chatEl.innerHTML = `
                         <div class="chat-item-content">
                             <div class="chat-avatar">
@@ -854,15 +853,14 @@
                             ${lastMessage ? formatTime(lastMessage.created_at) : formatTime(chat.created_at)}
                         </div>
                     `;
-                    
+    
                     chatsList.appendChild(chatEl);
                 }
-                
+    
             } catch (error) {
                 console.error('Erro ao carregar chats:', error);
             }
         }
-
         // Abrir chat
         async function openChat(chat, otherUser) {
             currentChatId = chat.id;
