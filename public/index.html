@@ -676,6 +676,50 @@
         // Entrar no chat
         currentUser = newUser; // ou existingUser
         localStorage.setItem('chatUser', JSON.stringify(currentUser));
+        // new teste AO ENTRAR NO CHAT
+        async function loadCurrentUser() {
+            try {
+                let storedUser = localStorage.getItem('anchat_current_user');
+                if (storedUser) {
+                    currentUser = JSON.parse(storedUser);
+                    // Atualiza a interface
+                    updateCurrentUserUI();
+                    return;
+                }
+        
+                const { data: user, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('fingerprint', userFingerprint)
+                    .single();
+        
+                if (error || !user) return;
+        
+                currentUser = user;
+        
+                // Salvar no localStorage
+                localStorage.setItem('anchat_current_user', JSON.stringify(currentUser));
+        
+                updateCurrentUserUI();
+        
+                // Atualizar last_seen
+                await supabase
+                    .from('users')
+                    .update({ last_seen: new Date().toISOString() })
+                    .eq('id', user.id);
+        
+            } catch (error) {
+                console.error('Erro ao carregar usuário:', error);
+            }
+        }
+        
+        function updateCurrentUserUI() {
+            document.getElementById('currentUserInfo').innerHTML = `
+                <div class="user-avatar-small">${currentUser.username[0].toUpperCase()}</div>
+                <div class="user-name-small">${currentUser.display_name || currentUser.username}</div>
+            `;
+        }
+
         
         // Ao carregar a página
         document.addEventListener('DOMContentLoaded', async function() {
