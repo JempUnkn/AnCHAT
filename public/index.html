@@ -630,7 +630,7 @@
         const UNSPLASH_ACCESS_KEY = 'rLxt5CvLJGr8yfQlUrOb9rLOsjeqcy3ZvceOwwZjsNM';
         
         // Inicializar Supabase
-        const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         
         // Estado global
