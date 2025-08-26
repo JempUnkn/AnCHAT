@@ -977,8 +977,13 @@
         
             try {
                 const { data, error } = await supabase
-                    .from('public_messages')
-                    .insert([{ content: message, created_at: new Date() }]);
+                  .from('public_messages')
+                  .insert([{
+                    content: message,
+                    user_id: currentUser.id,
+                    created_at: new Date()
+                  }]);
+
         
                 if (error) {
                     console.error('Erro ao enviar:', error);
