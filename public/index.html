@@ -641,6 +641,10 @@
         // Inicializar Supabase
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
+        const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+        await supabaseAdmin.from('users').insert({...});
+
+        
         // Estado global
         let currentUser = null;
         let userFingerprint = null;
