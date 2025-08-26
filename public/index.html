@@ -977,7 +977,7 @@
         
             try {
                 const { data, error } = await supabase
-                    .from('messages')       // nome da tabela no Supabase
+                    .from('public_messages')
                     .insert([{ content: message, created_at: new Date() }]);
         
                 if (error) {
@@ -988,6 +988,7 @@
         
                 // Limpar input após envio
                 input.value = '';
+                loadMessages();
                 input.style.height = 'auto'; // reset altura se tiver autoexpand
         
                 console.log('Mensagem enviada:', data);
