@@ -674,6 +674,34 @@
         }
         
         // Entrar no chat
+        currentUser = newUser; // ou existingUser
+        localStorage.setItem('chatUser', JSON.stringify(currentUser));
+        
+        // Ao carregar a página
+        document.addEventListener('DOMContentLoaded', async function() {
+            const savedUser = localStorage.getItem('chatUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                // Atualiza interface e habilita input
+                document.getElementById('messageInput').disabled = false;
+                document.querySelector('.user-info').innerHTML = `
+                    <div style="display: flex; align-items: center; color: white;">
+                        <div class="user-avatar">${currentUser.username[0].toUpperCase()}</div>
+                        <div style="margin-left: 10px;">
+                            <div style="font-weight: bold;">${currentUser.username}</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Online</div>
+                        </div>
+                    </div>
+                    <button onclick="leaveChat()" style="margin-top: 10px; width: 100%; padding: 8px; border: none; border-radius: 8px; background: rgba(255,255,255,0.2); color: white; cursor: pointer;">
+                        <i class="fas fa-sign-out-alt"></i> Sair
+                    </button>
+                `;
+                await loadMessages();
+                setupRealtimeSubscriptions();
+            } else {
+                // Se não tem, mostra input para login
+            }
+        });
         async function joinChat() {
             const username = document.getElementById('usernameInput').value.trim();
             if (!username || username.length < 2) {
