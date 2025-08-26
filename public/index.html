@@ -787,6 +787,7 @@
         // Sair do chat
         async function leaveChat() {
             currentUser = null;
+            localStorage.removeItem('chatUser');
             document.querySelector('.user-info').innerHTML = `
                 <input type="text" id="usernameInput" placeholder="Seu nome de usuário..." maxlength="20">
                 <button id="joinBtn" onclick="joinChat()">
