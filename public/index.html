@@ -581,29 +581,15 @@
             
             <div class="input-container">
                 <div class="input-wrapper">
-                    <form id="chatForm" onsubmit="sendMessage(); return false;">
-                        <textarea 
-                            id="messageInput" 
-                            class="message-input" 
-                            placeholder="Digite sua mensagem..."
-                            rows="1"
-                            oninput="handleTyping()"
-                        ></textarea>
-                        <button type="submit" class="input-btn send-btn">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </form>
-
+                    <textarea id="messageInput" class="message-input" placeholder="Digite sua mensagem..."
+                        rows="1"
+                        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault(); sendMessage();}"
+                        oninput="handleTyping()"
+                    ></textarea>
                     <div class="input-actions">
-                        <button class="input-btn" onclick="toggleEmojiPicker()">
-                            <i class="fas fa-smile"></i>
-                        </button>
-                        <button class="input-btn" onclick="showImageUpload()">
-                            <i class="fas fa-image"></i>
-                        </button>
-                        <button class="input-btn send-btn" onclick="sendMessage()">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
+                        <button class="input-btn" onclick="toggleEmojiPicker()"><i class="fas fa-smile"></i></button>
+                        <button class="input-btn" onclick="showImageUpload()"><i class="fas fa-image"></i></button>
+                        <button class="input-btn send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
                     </div>
                 </div>
             </div>
