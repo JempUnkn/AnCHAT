@@ -553,37 +553,44 @@
         // Login do admin
         async function adminLogin(event) {
             event.preventDefault();
-            
-            const username = document.getElementById('adminUsername').value.trim();
+        
+            const email = document.getElementById('adminEmail').value.trim();
             const password = document.getElementById('adminPassword').value;
-            
-            // Verificação simples (em produção, use hash de senha)
-            if (username === 'admin' && password === 'admin123') {
-                try {
-                    const { data: user, error } = await supabase
-                        .from('users')
-                        .select('*')
-                        .eq('username', username)
-                        .eq('is_admin', true)
-                        .single();
-                    
-                    if (error || !user) {
-                        alert('Credenciais inválidas!');
-                        return;
-                    }
-                    
-                    currentAdmin = user;
-                    localStorage.setItem('anchat_admin', JSON.stringify(user));
-                    
-                    // Log do login
-                    await logAdminAction('login', null, { ip: await getClientIP() });
-                    
-                    showDashboard();
-                    
-                } catch (error) {
-                    console.error('Erro no login:', error);
-                    alert('Erro ao fazer login. Tente novamente.');
+        
+            try {
+                const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
+        
+                if (authError || !authData.user) {
+                    alert('Credenciais inválidas!');
+                    return;
                 }
+        
+                // Verifica se é admin
+                const { data: userProfile, error: profileError } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('id', authData.user.id)
+                    .eq('is_admin', true)
+                    .single();
+        
+                if (profileError || !userProfile) {
+                    alert('Você não tem permissão de admin!');
+                    return;
+                }
+        
+                // Salva admin logado
+                currentAdmin = userProfile;
+                localStorage.setItem('anchat_admin', JSON.stringify(userProfile));
+        
+                // Mostra dashboard
+                showDashboard();
+        
+            } catch (err) {
+                console.error(err);
+                alert('Erro ao fazer login. Tente novamente.');
             } else {
                 alert('Credenciais inválidas!');
             }
