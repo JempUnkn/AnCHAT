@@ -702,6 +702,7 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.0/umd/supabase.min.js"></script>
     <script>
         // Configuração do Supabase
         const SUPABASE_URL = 'https://niarpllphzxupsnewlam.supabase.co';
@@ -720,17 +721,18 @@
         let messagesSubscription = null;
 
         // Inicialização
-        document.addEventListener('DOMContentLoaded', async function() {
+        document.addEventListener('DOMContentLoaded', async () => {
+            const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             await generateFingerprint();
             await loadCurrentUser();
             if (currentUser) {
                 await loadChats();
                 setupRealtimeSubscriptions();
             } else {
-                // Redirecionar para página principal se não estiver logado
-                window.location.href = '/public';
+                window.location.href = '../public';
             }
         });
+
 
         // Gerar fingerprint do dispositivo
         async function generateFingerprint() {
